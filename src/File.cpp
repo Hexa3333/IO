@@ -1,11 +1,11 @@
 #include "File.hpp"
 
 File::File()
-    : mode(FileMode::none)
+    : mode(FileAccess::none)
 {
 }
 
-File::File(const std::string& filePath, FileMode accessMode)
+File::File(const std::string& filePath, FileAccess accessMode)
     : path(filePath), mode(accessMode)
 {
     Open(path);
@@ -30,7 +30,7 @@ FileError File::Open(const std::string& filePath)
 
 FileError File::Read(std::string& outContent)
 {
-    if ((mode & FileMode::read) == FileMode::none)
+    if ((mode & FileAccess::read) == FileAccess::none)
     {
         return FileError::no_read_perm;
     }
@@ -50,11 +50,11 @@ std::ios::openmode File::GetFstreamMode()
 {
     std::ios::openmode fstreamMode{};
 
-    if ((mode & FileMode::read) != FileMode::none)
+    if ((mode & FileAccess::read) != FileAccess::none)
         fstreamMode |= std::ios::in;
-    if ((mode & FileMode::write) != FileMode::none)
+    if ((mode & FileAccess::write) != FileAccess::none)
         fstreamMode |= std::ios::out;
-    if ((mode & FileMode::binary) != FileMode::none)
+    if ((mode & FileAccess::binary) != FileAccess::none)
         fstreamMode |= std::ios::binary;
 
     return fstreamMode;

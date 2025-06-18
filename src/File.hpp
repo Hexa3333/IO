@@ -3,8 +3,9 @@
 */
 
 #include <fstream>
-#include "FileMode.hpp"
+#include "FileAccess.hpp"
 #include "FileError.hpp"
+#include "FileInfo.hpp"
 
 /*
    Work In Progress.
@@ -12,11 +13,12 @@
    [-] Safety. Real safety.
 
 */
+
 class File
 {
 public:
     File();
-    File(const std::string& fileName, FileMode mode = FileMode::read | FileMode::write);
+    File(const std::string& fileName, FileAccess mode = FileAccess::read | FileAccess::write);
     operator bool() const;
 
     FileError Open(const std::string& filePath);
@@ -37,5 +39,5 @@ private:
 private:
     std::string path;
     std::fstream stream;
-    FileMode mode;
+    FileAccess access;
 };

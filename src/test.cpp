@@ -41,7 +41,7 @@ FileError operator<<(File f, const vec2& v)
 
 int main(void)
 {
-    File fileIn("./file", FileMode::read);
+    File fileIn("./file", FileAccess::read);
     std::string contents;
     if (fileIn.Read(contents) != FileError::none)
     {
