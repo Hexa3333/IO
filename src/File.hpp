@@ -32,6 +32,8 @@ public:
     FileError Read(std::string& outContent);
     FileError Write(const std::string& writeContent);
 
+    void Flush();
+
     bool CheckExists();
 
     static void HandleError(FileError e);

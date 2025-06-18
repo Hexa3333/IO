@@ -84,6 +84,11 @@ FileError File::Write(const std::string& writeContent)
     return FileError::none;
 }
 
+void File::Flush()
+{
+    stream.flush();
+}
+
 std::ios::openmode File::GetFstreamMode()
 {
     std::ios::openmode fstreamMode{};
