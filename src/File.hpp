@@ -40,9 +40,11 @@ public:
 
     template <typename T>
     friend FileError operator>>(File& f, T& outContent);
+    FileError operator>>(std::string& outString);
 
     template <typename T>
     friend FileError operator<<(File& f, const T& writeContent);
+    FileError operator<<(const std::string& writeContent);
 
     ~File();
 private:
@@ -50,6 +52,7 @@ private:
     [[nodiscard("Should not be ignored")]]
     FileError QueryInfo();
     FileError AccessCheck() const;
+    void CreateWritableRegularFile();
 
 private:
     std::fstream stream;

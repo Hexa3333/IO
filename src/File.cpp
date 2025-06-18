@@ -1,5 +1,7 @@
 #include "File.hpp"
+#include "FileInfo.hpp"
 #include <filesystem>
+#include <stdexcept>
 
 // TODO: Functions other than the constructor need not necessarily
 // handle errors. Maybe this should be a flag also ?
@@ -14,10 +16,23 @@ File::File(const std::string& filePath, FileAccess accessMode)
     : access(accessMode)
 {
     info.path = filePath;
-    stream.exceptions(std::ios::badbit);
 
-    HandleError(QueryInfo());
-    HandleError(AccessCheck());
+    // Query the FileInfo (includes permissions)
+    FileError queryError = QueryInfo();
+
+    // File does not exist on disk
+    if (queryError == FileError::not_found)
+    {
+        if ((access & FileAccess::read) != FileAccess::none)
+            // You cannot read a non-existent file!
+            throw std::runtime_error("Attempted to read a non-existent file");
+
+        if ((access & FileAccess::write) != FileAccess::none)
+            CreateWritableRegularFile();
+    }
+    // exists on disk
+    else
+        HandleError(AccessCheck());
     HandleError(Open(info.path));
 }
 
@@ -150,6 +165,16 @@ FileError File::AccessCheck() const
     return errors;
 }
 
+void File::CreateWritableRegularFile()
+{
+    info.type = std::filesystem::file_type::regular;
+    info.permissions = std::filesystem::perms::owner_write;
+    info.lastWriteTime = std::filesystem::file_time_type::clock::now();
+
+    // Preserve information that this file was CREATED(truncated) during the lifetime of the program
+    access = FileAccess::write | FileAccess::truncate;
+}
+
 #include <iostream>
 // TODO
 void File::HandleError(FileError e)
@@ -171,10 +196,25 @@ void File::HandleError(FileError e)
         }
 
         case FileError::not_found:
+        {
+            std::cout << "NOT FOUND\n";
+            break;
+        }
+
         case FileError::none:
         default:
         break;
     }
+}
+
+FileError File::operator>>(std::string& outString)
+{
+    return Read(outString);
+}
+
+FileError File::operator<<(const std::string& writeContent)
+{
+    return Write(writeContent);
 }
 
 File::~File()
