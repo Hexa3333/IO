@@ -29,8 +29,8 @@ File::operator bool() const
 FileError File::ResetAccess(FileAccess flags)
 {
     stream.close();
-    access = flags;
 
+    access = flags;
     FileError errors = AccessCheck();
     HandleError(errors);
     stream.open(info.path, GetFstreamMode());
@@ -165,6 +165,7 @@ void File::HandleError(FileError e)
             break;
         }
 
+        case FileError::not_found:
         case FileError::none:
         default:
         break;

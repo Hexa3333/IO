@@ -31,12 +31,10 @@ FileError operator>>(File& f, vec2& v)
     return retCond;
 }
 
-#if 0
-FileError operator<<(File f, const vec2& v)
+FileError operator<<(File& f, const vec2& v)
 {
     return f.Write("{ " + std::to_string(v.x) + ", " + std::to_string(v.y) + " }");
 }
-#endif
 
 
 int main(void)
@@ -54,11 +52,14 @@ int main(void)
     vec2 v;
     vectorized >> v;
     std::cout << v.x << ", " << v.y << "\n";
+
     // Now change it to write and append things
     vectorized.ResetAccess(FileAccess::write | FileAccess::append);
-    File::HandleError(vectorized.Write("sex"));
+    vec2 v2 = {18, 81};
+    vectorized << v2;
 
     File out("./out", FileAccess::write);
     std::string outMessage = "Save the world.\nTruthnuke.\nOver...";
     out.Write(outMessage);
 }
+

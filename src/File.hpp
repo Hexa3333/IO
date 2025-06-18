@@ -13,9 +13,10 @@
    Work In Progress.
    [+] Add custom overloads for reading and writing
    [+] Access safety
-   [+] Set Access
+   [+] Reset Access
 
-   [-] Operations
+   [-] Operations (move, copy)
+   [-] Operations on the file system
 */
 
 class File
@@ -39,7 +40,7 @@ public:
     friend FileError operator>>(File& f, T& outContent);
 
     template <typename T>
-    friend FileError operator<<(File f, const T& writeContent);
+    friend FileError operator<<(File& f, const T& writeContent);
 
     ~File();
 private:
