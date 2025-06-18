@@ -12,8 +12,7 @@
 /*
    Work In Progress.
    [+] Add custom overloads for reading and writing
-   [-] Safety. Real safety.
-
+   [-] Access safety
 */
 
 class File
@@ -39,6 +38,7 @@ private:
     std::ios::openmode GetFstreamMode();
     [[nodiscard("Should not be ignored")]]
     FileError QueryInfo();
+    FileError AccessCheck();
     static void HandleError(FileError e);
 
 private:

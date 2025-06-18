@@ -76,6 +76,12 @@ FileError File::QueryInfo()
     return FileError::none;
 }
 
+// TODO
+FileError File::AccessCheck()
+{
+    return FileError::none;
+}
+
 File::~File()
 {
     stream.close();
