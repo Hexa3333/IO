@@ -3,11 +3,12 @@
 
 enum struct FileAccess : uint8_t
 {
-    none    =        0,
-    read    =  (1 << 0),
-    write   =  (1 << 1),
-    binary  =  (1 << 2),
-
+    none       =        0,
+    read       =  (1 << 0),
+    write      =  (1 << 1),
+    binary     =  (1 << 2),
+    append     =  (1 << 3),
+    truncate   =  (1 << 4),
 };
 
 inline FileAccess operator|(FileAccess a, FileAccess b)

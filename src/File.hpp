@@ -33,6 +33,8 @@ public:
 
     bool CheckExists();
 
+    static void HandleError(FileError e);
+
     template <typename T>
     friend FileError operator>>(File& f, T& outContent);
 
@@ -45,7 +47,6 @@ private:
     [[nodiscard("Should not be ignored")]]
     FileError QueryInfo();
     FileError AccessCheck() const;
-    static void HandleError(FileError e);
 
 private:
     std::fstream stream;

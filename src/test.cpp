@@ -50,10 +50,13 @@ int main(void)
 
     std::cout << "Read:\n" << contents << "\n";
 
-    File vectorized("./vectorized");
+    File vectorized("./vectorized", FileAccess::read);
     vec2 v;
     vectorized >> v;
     std::cout << v.x << ", " << v.y << "\n";
+    // Now change it to write and append things
+    vectorized.SetAccess(FileAccess::write | FileAccess::append);
+    File::HandleError(vectorized.Write("sex"));
 
     File out("./out", FileAccess::write);
     std::string outMessage = "Save the world.\nTruthnuke.\nOver...";

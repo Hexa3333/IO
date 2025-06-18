@@ -11,6 +11,8 @@ File::File(const std::string& filePath, FileAccess accessMode)
     : access(accessMode)
 {
     info.path = filePath;
+    stream.exceptions(std::ios::badbit);
+
     HandleError(QueryInfo());
     HandleError(AccessCheck());
     HandleError(Open(info.path));
@@ -21,10 +23,17 @@ File::operator bool() const
     return stream.is_open();
 }
 
+// TODO: Functions other than the constructor need not necessarily
+// handle errors, maybe this should be a flag also ?
 FileError File::SetAccess(FileAccess flags)
 {
+    stream.close();
     access = flags;
-    return AccessCheck();
+    FileError errors = AccessCheck();
+    HandleError(errors);
+    stream.open(info.path, GetFstreamMode());
+
+    return errors;
 }
 
 FileError File::Open(const std::string& filePath)
@@ -83,6 +92,10 @@ std::ios::openmode File::GetFstreamMode()
         fstreamMode |= std::ios::out;
     if ((access & FileAccess::binary) != FileAccess::none)
         fstreamMode |= std::ios::binary;
+    if ((access & FileAccess::append) != FileAccess::none)
+        fstreamMode |= std::ios::app;
+    if ((access & FileAccess::truncate) != FileAccess::none)
+        fstreamMode |= std::ios::trunc;
 
     return fstreamMode;
 }
@@ -110,19 +123,19 @@ FileError File::AccessCheck() const
     using perms = std::filesystem::perms;
     static auto infoPermCheck = [&](perms i, perms f)
     {
-        return (i & f) != std::filesystem::perms::none;
+        return (i & f) != perms::none;
     };
 
     FileError errors{};
 
     if ((access & FileAccess::read) != FileAccess::none &&
-        infoPermCheck(info.permissions, perms::owner_read))
+        !infoPermCheck(info.permissions, perms::owner_read))
     {
         errors |= FileError::no_read_perm;
     }
 
     if ((access & FileAccess::write) != FileAccess::none &&
-        infoPermCheck(info.permissions, perms::owner_write))
+        !infoPermCheck(info.permissions, perms::owner_write))
     {
         errors |= FileError::no_write_perm;
     }
@@ -130,6 +143,7 @@ FileError File::AccessCheck() const
     return errors;
 }
 
+#include <iostream>
 // TODO
 void File::HandleError(FileError e)
 {
@@ -138,12 +152,14 @@ void File::HandleError(FileError e)
         case FileError::no_read_perm:
         {
             // Handle
+            std::cout << "NO READ PERM\n";
             break;
         }
 
         case FileError::no_write_perm:
         {
             // Handle
+            std::cout << "NO WRITE PERM\n";
             break;
         }
 
