@@ -12,7 +12,10 @@
 /*
    Work In Progress.
    [+] Add custom overloads for reading and writing
-   [-] Access safety
+   [+] Access safety
+   [+] Set Access
+
+   [-] Operations
 */
 
 class File
@@ -22,6 +25,7 @@ public:
     File(const std::string& fileName, FileAccess mode = FileAccess::read | FileAccess::write);
     operator bool() const;
 
+    FileError SetAccess(FileAccess flags);
     FileError Open(const std::string& filePath);
 
     FileError Read(std::string& outContent);

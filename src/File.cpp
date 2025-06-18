@@ -1,6 +1,7 @@
 #include "File.hpp"
 #include <filesystem>
 
+// TODO
 File::File()
     : access(FileAccess::none)
 {
@@ -10,14 +11,20 @@ File::File(const std::string& filePath, FileAccess accessMode)
     : access(accessMode)
 {
     info.path = filePath;
-    QueryInfo();
-    AccessCheck();
-    Open(info.path);
+    HandleError(QueryInfo());
+    HandleError(AccessCheck());
+    HandleError(Open(info.path));
 }
 
 File::operator bool() const
 {
     return stream.is_open();
+}
+
+FileError File::SetAccess(FileAccess flags)
+{
+    access = flags;
+    return AccessCheck();
 }
 
 FileError File::Open(const std::string& filePath)
@@ -100,7 +107,8 @@ bool File::CheckExists()
 
 FileError File::AccessCheck() const
 {
-    auto infoPermCheck = [&](std::filesystem::perms i, std::filesystem::perms f)
+    using perms = std::filesystem::perms;
+    static auto infoPermCheck = [&](perms i, perms f)
     {
         return (i & f) != std::filesystem::perms::none;
     };
@@ -108,13 +116,13 @@ FileError File::AccessCheck() const
     FileError errors{};
 
     if ((access & FileAccess::read) != FileAccess::none &&
-        infoPermCheck(info.permissions, std::filesystem::perms::owner_read))
+        infoPermCheck(info.permissions, perms::owner_read))
     {
         errors |= FileError::no_read_perm;
     }
 
     if ((access & FileAccess::write) != FileAccess::none &&
-        infoPermCheck(info.permissions, std::filesystem::perms::owner_write))
+        infoPermCheck(info.permissions, perms::owner_write))
     {
         errors |= FileError::no_write_perm;
     }
