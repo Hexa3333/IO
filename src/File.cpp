@@ -1,6 +1,9 @@
 #include "File.hpp"
 #include <filesystem>
 
+// TODO: Functions other than the constructor need not necessarily
+// handle errors. Maybe this should be a flag also ?
+
 // TODO
 File::File()
     : access(FileAccess::none)
@@ -23,12 +26,11 @@ File::operator bool() const
     return stream.is_open();
 }
 
-// TODO: Functions other than the constructor need not necessarily
-// handle errors, maybe this should be a flag also ?
-FileError File::SetAccess(FileAccess flags)
+FileError File::ResetAccess(FileAccess flags)
 {
     stream.close();
     access = flags;
+
     FileError errors = AccessCheck();
     HandleError(errors);
     stream.open(info.path, GetFstreamMode());

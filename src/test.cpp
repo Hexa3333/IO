@@ -55,7 +55,7 @@ int main(void)
     vectorized >> v;
     std::cout << v.x << ", " << v.y << "\n";
     // Now change it to write and append things
-    vectorized.SetAccess(FileAccess::write | FileAccess::append);
+    vectorized.ResetAccess(FileAccess::write | FileAccess::append);
     File::HandleError(vectorized.Write("sex"));
 
     File out("./out", FileAccess::write);
