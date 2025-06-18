@@ -16,7 +16,19 @@ inline FileAccess operator|(FileAccess a, FileAccess b)
     return static_cast<FileAccess>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
 }
 
+inline FileAccess operator|=(FileAccess& a, FileAccess b)
+{
+    a = operator|(a, b);
+    return a;
+}
+
 inline FileAccess operator&(FileAccess a, FileAccess b)
 {
     return static_cast<FileAccess>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+}
+
+inline FileAccess operator&=(FileAccess& a, FileAccess b)
+{
+    a = operator&(a, b);
+    return a;
 }
