@@ -54,4 +54,8 @@ int main(void)
     vec2 v;
     vectorized >> v;
     std::cout << v.x << ", " << v.y << "\n";
+
+    File out("./out", FileAccess::write);
+    std::string outMessage = "Save the world.\nTruthnuke.\nOver...";
+    out.Write(outMessage);
 }

@@ -33,11 +33,13 @@ FileError File::Open(const std::string& filePath)
 
 FileError File::Read(std::string& outContent)
 {
+    // TODO: Access checks handle it
     if ((access & FileAccess::read) == FileAccess::none)
     {
         return FileError::no_read_perm;
     }
 
+    // TODO: Error handling
     stream.seekg(0, std::ios::end);
     size_t size = stream.tellg();
     stream.seekg(0);
@@ -45,6 +47,20 @@ FileError File::Read(std::string& outContent)
     outContent.resize(size+1);
     stream.read(&outContent[0], size);
     outContent[size] = 0;
+
+    return FileError::none;
+}
+
+FileError File::Write(const std::string& writeContent)
+{
+    // TODO: Access checks handle it
+    if ((access & FileAccess::write) == FileAccess::none)
+    {
+        return FileError::no_write_perm;
+    }
+
+    // TODO: Error handling
+    stream.write(writeContent.data(), writeContent.size());
 
     return FileError::none;
 }
