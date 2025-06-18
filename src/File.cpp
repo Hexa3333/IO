@@ -1,0 +1,66 @@
+#include "File.hpp"
+
+File::File()
+    : mode(FileMode::none)
+{
+}
+
+File::File(const std::string& filePath, FileMode accessMode)
+    : path(filePath), mode(accessMode)
+{
+    Open(path);
+}
+
+File::operator bool() const
+{
+    return stream.is_open();
+}
+
+FileError File::Open(const std::string& filePath)
+{
+    path = filePath;
+    stream.open(path, GetFstreamMode());
+    if (!stream.is_open())
+    {
+        throw std::runtime_error("File: \"" + path + "\" could not be opened");
+    }
+
+    return FileError::none;
+}
+
+FileError File::Read(std::string& outContent)
+{
+    if ((mode & FileMode::read) == FileMode::none)
+    {
+        return FileError::no_read_perm;
+    }
+
+    stream.seekg(0, std::ios::end);
+    size_t size = stream.tellg();
+    stream.seekg(0);
+
+    outContent.resize(size+1);
+    stream.read(&outContent[0], size);
+    outContent[size] = 0;
+
+    return FileError::none;
+}
+
+std::ios::openmode File::GetFstreamMode()
+{
+    std::ios::openmode fstreamMode{};
+
+    if ((mode & FileMode::read) != FileMode::none)
+        fstreamMode |= std::ios::in;
+    if ((mode & FileMode::write) != FileMode::none)
+        fstreamMode |= std::ios::out;
+    if ((mode & FileMode::binary) != FileMode::none)
+        fstreamMode |= std::ios::binary;
+
+    return fstreamMode;
+}
+
+File::~File()
+{
+    stream.close();
+}
