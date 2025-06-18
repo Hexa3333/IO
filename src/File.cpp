@@ -1,4 +1,5 @@
 #include "File.hpp"
+#include <filesystem>
 
 File::File()
     : access(FileAccess::none)
@@ -6,9 +7,11 @@ File::File()
 }
 
 File::File(const std::string& filePath, FileAccess accessMode)
-    : path(filePath), access(accessMode)
+    : access(accessMode)
 {
-    Open(path);
+    info.path = filePath;
+    QueryInfo();
+    Open(info.path);
 }
 
 File::operator bool() const
@@ -18,11 +21,11 @@ File::operator bool() const
 
 FileError File::Open(const std::string& filePath)
 {
-    path = filePath;
-    stream.open(path, GetFstreamMode());
+    info.path = filePath;
+    stream.open(info.path, GetFstreamMode());
     if (!stream.is_open())
     {
-        throw std::runtime_error("File: \"" + path + "\" could not be opened");
+        throw std::runtime_error("File: \"" + std::string(info.path) + "\" could not be opened");
     }
 
     return FileError::none;
@@ -60,8 +63,17 @@ std::ios::openmode File::GetFstreamMode()
     return fstreamMode;
 }
 
-void File::QueryInfo()
+FileError File::QueryInfo()
 {
+    if (std::filesystem::exists(info.path))
+        return FileError::not_found;
+
+    auto status = std::filesystem::status(info.path);
+    info.type = status.type();
+    info.permissions = status.permissions();
+    info.lastWriteTime = std::filesystem::last_write_time(info.path);
+
+    return FileError::none;
 }
 
 File::~File()

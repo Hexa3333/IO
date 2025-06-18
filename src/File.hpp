@@ -37,11 +37,12 @@ public:
     ~File();
 private:
     std::ios::openmode GetFstreamMode();
-    void QueryInfo();
+    [[nodiscard("Should not be ignored")]]
+    FileError QueryInfo();
+    static void HandleError(FileError e);
 
 private:
     FileInfo info;
-    std::string path;
     std::fstream stream;
     FileAccess access;
 };
