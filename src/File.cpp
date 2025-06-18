@@ -82,7 +82,7 @@ std::ios::openmode File::GetFstreamMode()
 
 FileError File::QueryInfo()
 {
-    if (!std::filesystem::exists(info.path))
+    if (!CheckExists())
         return FileError::not_found;
 
     auto status = std::filesystem::status(info.path);
@@ -91,6 +91,11 @@ FileError File::QueryInfo()
     info.lastWriteTime = std::filesystem::last_write_time(info.path);
 
     return FileError::none;
+}
+
+bool File::CheckExists()
+{
+    return std::filesystem::exists(info.path);
 }
 
 FileError File::AccessCheck() const
@@ -122,7 +127,21 @@ void File::HandleError(FileError e)
 {
     switch (e)
     {
+        case FileError::no_read_perm:
+        {
+            // Handle
+            break;
+        }
 
+        case FileError::no_write_perm:
+        {
+            // Handle
+            break;
+        }
+
+        case FileError::none:
+        default:
+        break;
     }
 }
 

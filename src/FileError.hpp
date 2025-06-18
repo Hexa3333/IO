@@ -18,7 +18,7 @@ inline FileError operator|(FileError a, FileError b)
 
 inline FileError operator|=(FileError& a, FileError b)
 {
-    a = static_cast<FileError>(operator|(a, b));
+    a = operator|(a, b);
     return a;
 }
 

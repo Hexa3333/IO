@@ -27,6 +27,8 @@ public:
     FileError Read(std::string& outContent);
     FileError Write(const std::string& writeContent);
 
+    bool CheckExists();
+
     template <typename T>
     friend FileError operator>>(File& f, T& outContent);
 
