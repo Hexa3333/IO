@@ -42,7 +42,8 @@ private:
     static void HandleError(FileError e);
 
 private:
-    FileInfo info;
     std::fstream stream;
+
+    FileInfo info;
     FileAccess access;
 };

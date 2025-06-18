@@ -65,7 +65,7 @@ std::ios::openmode File::GetFstreamMode()
 
 FileError File::QueryInfo()
 {
-    if (std::filesystem::exists(info.path))
+    if (!std::filesystem::exists(info.path))
         return FileError::not_found;
 
     auto status = std::filesystem::status(info.path);
