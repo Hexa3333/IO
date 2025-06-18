@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FileAccess.hpp"
 #include <cstdint>
 
 enum struct FileError : uint8_t
@@ -13,6 +14,12 @@ enum struct FileError : uint8_t
 inline FileError operator|(FileError a, FileError b)
 {
     return static_cast<FileError>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+}
+
+inline FileError operator|=(FileError& a, FileError b)
+{
+    a = static_cast<FileError>(operator|(a, b));
+    return a;
 }
 
 inline FileError operator&(FileError a, FileError b)

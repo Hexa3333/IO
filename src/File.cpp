@@ -11,6 +11,7 @@ File::File(const std::string& filePath, FileAccess accessMode)
 {
     info.path = filePath;
     QueryInfo();
+    AccessCheck();
     Open(info.path);
 }
 
@@ -92,10 +93,37 @@ FileError File::QueryInfo()
     return FileError::none;
 }
 
-// TODO
-FileError File::AccessCheck()
+FileError File::AccessCheck() const
 {
-    return FileError::none;
+    auto infoPermCheck = [&](std::filesystem::perms i, std::filesystem::perms f)
+    {
+        return (i & f) != std::filesystem::perms::none;
+    };
+
+    FileError errors{};
+
+    if ((access & FileAccess::read) != FileAccess::none &&
+        infoPermCheck(info.permissions, std::filesystem::perms::owner_read))
+    {
+        errors |= FileError::no_read_perm;
+    }
+
+    if ((access & FileAccess::write) != FileAccess::none &&
+        infoPermCheck(info.permissions, std::filesystem::perms::owner_write))
+    {
+        errors |= FileError::no_write_perm;
+    }
+
+    return errors;
+}
+
+// TODO
+void File::HandleError(FileError e)
+{
+    switch (e)
+    {
+
+    }
 }
 
 File::~File()
