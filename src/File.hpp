@@ -1,6 +1,8 @@
 #pragma once
 /*
+   
 */
+
 
 #include <fstream>
 #include "FileAccess.hpp"
@@ -35,8 +37,10 @@ public:
     ~File();
 private:
     std::ios::openmode GetFstreamMode();
+    void QueryInfo();
 
 private:
+    FileInfo info;
     std::string path;
     std::fstream stream;
     FileAccess access;

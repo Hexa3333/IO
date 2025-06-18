@@ -1,6 +1,8 @@
 #pragma once
 #include <filesystem>
 
+// TODO: learn std::filesystem::path
+
 struct FileInfo
 {
     std::filesystem::path path;
