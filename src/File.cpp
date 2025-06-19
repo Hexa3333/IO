@@ -3,8 +3,33 @@
 #include <filesystem>
 #include <stdexcept>
 
+#include <unistd.h>
+#include <pwd.h>
+
 // TODO: Functions other than the constructor need not necessarily
 // handle errors. Maybe this should be a flag also ?
+
+#define IO_UNKOWN_USER_NAME "unknown"
+
+#ifdef UNIX
+static uid_t GetWorkingUID()
+{
+    return getuid();
+}
+
+static std::string GetWorkingUserName()
+{
+    struct passwd* pw = getpwuid(GetWorkingUID());
+    return pw ? pw->pw_name : IO_UNKOWN_USER_NAME;
+}
+
+static uid_t GetWorkingGID()
+{
+    return getgid();
+}
+
+#elif WINDOWS
+#endif
 
 // TODO
 File::File()
@@ -140,6 +165,10 @@ bool File::CheckExists()
     return std::filesystem::exists(info.path);
 }
 
+// 1. Get whatever access is requested (in member 'access')
+// 2. Check for user and group perms
+// 3. Check if USER in those perms
+// TODO:
 FileError File::AccessCheck() const
 {
     using perms = std::filesystem::perms;
@@ -147,21 +176,21 @@ FileError File::AccessCheck() const
     {
         return (i & f) != perms::none;
     };
-
+    
     FileError errors{};
-
+    
     if ((access & FileAccess::read) != FileAccess::none &&
         !infoPermCheck(info.permissions, perms::owner_read))
     {
         errors |= FileError::no_read_perm;
     }
-
+    
     if ((access & FileAccess::write) != FileAccess::none &&
         !infoPermCheck(info.permissions, perms::owner_write))
     {
         errors |= FileError::no_write_perm;
     }
-
+    
     return errors;
 }
 
