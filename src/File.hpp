@@ -34,7 +34,9 @@ public:
 
     void Flush();
 
-    bool CheckExists();
+    bool CheckExists() const;
+    bool CanRead() const;
+    bool CanWrite() const;
 
     static void HandleError(FileError e);
 

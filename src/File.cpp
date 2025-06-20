@@ -12,6 +12,7 @@
 
 #define IO_UNKOWN_USER_NAME "unknown"
 
+// Unfortunately there's no way around this:
 #ifdef UNIX
 static uid_t GetWorkingUID()
 {
@@ -74,6 +75,10 @@ File::File(const std::string& filePath, FileAccess accessMode)
 
     // Query the FileInfo (includes permissions)
     FileError queryError = QueryInfo();
+    if (accessMode == FileAccess::none)
+    {
+        return;
+    }
 
     // File does not exist on disk
     if (queryError == FileError::not_found)
@@ -190,9 +195,19 @@ FileError File::QueryInfo()
     return FileError::none;
 }
 
-bool File::CheckExists()
+bool File::CheckExists() const
 {
     return std::filesystem::exists(info.path);
+}
+
+bool File::CanRead() const
+{
+    return GetWorkingUserCanRead(info.path);
+}
+
+bool File::CanWrite() const
+{
+    return GetWorkingUserCanWrite(info.path);
 }
 
 // 1. Get whatever access is requested (in member 'access')
@@ -211,14 +226,14 @@ FileError File::AccessCheck() const
     
     // Asked for read access, but no read permission
     if ((access & FileAccess::read) != FileAccess::none &&
-        !GetWorkingUserCanRead(info.path))
+        !CanRead())
     {
         errors |= FileError::no_read_perm;
     }
     
     // Asked for write access, but no write permission
     if ((access & FileAccess::write) != FileAccess::none &&
-        !GetWorkingUserCanWrite(info.path))
+        !CanWrite())
     {
         errors |= FileError::no_write_perm;
     }
