@@ -4,10 +4,10 @@
 
 enum struct FileError : uint8_t
 {
-    none,
-    not_found,
-    no_read_perm,
-    no_write_perm,
+    none              =       0,
+    not_found         = (1 << 0),
+    no_read_perm      = (1 << 1),
+    no_write_perm     = (1 << 2),
 };
 
 inline FileError operator|(FileError a, FileError b)

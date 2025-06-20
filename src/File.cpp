@@ -5,6 +5,7 @@
 
 #include <unistd.h>
 #include <pwd.h>
+#include <sys/stat.h>
 
 // TODO: Functions other than the constructor need not necessarily
 // handle errors. Maybe this should be a flag also ?
@@ -26,6 +27,35 @@ static std::string GetWorkingUserName()
 static uid_t GetWorkingGID()
 {
     return getgid();
+}
+
+// NOTE: no error handling, is not necessary?
+static bool GetWorkingUserCanRead(const std::filesystem::path& path)
+{
+    struct stat st;
+    std::string fpath = path.c_str();
+    stat(fpath.data(), &st);
+
+    if (GetWorkingUID() == st.st_uid)
+        return st.st_mode & S_IRUSR;
+    else if(GetWorkingGID() == st.st_gid)
+        return st.st_mode & S_IRGRP;
+    else
+        return st.st_mode & S_IROTH;
+}
+
+static bool GetWorkingUserCanWrite(const std::filesystem::path& path)
+{
+    struct stat st;
+    std::string fpath = path.c_str();
+    stat(fpath.data(), &st);
+
+    if (GetWorkingUID() == st.st_uid)
+        return st.st_mode & S_IWUSR;
+    else if(GetWorkingGID() == st.st_gid)
+        return st.st_mode & S_IWGRP;
+    else
+        return st.st_mode & S_IWOTH;
 }
 
 #elif WINDOWS
@@ -179,14 +209,16 @@ FileError File::AccessCheck() const
     
     FileError errors{};
     
+    // Asked for read access, but no read permission
     if ((access & FileAccess::read) != FileAccess::none &&
-        !infoPermCheck(info.permissions, perms::owner_read))
+        !GetWorkingUserCanRead(info.path))
     {
         errors |= FileError::no_read_perm;
     }
     
+    // Asked for write access, but no write permission
     if ((access & FileAccess::write) != FileAccess::none &&
-        !infoPermCheck(info.permissions, perms::owner_write))
+        !GetWorkingUserCanWrite(info.path))
     {
         errors |= FileError::no_write_perm;
     }
@@ -204,35 +236,25 @@ void File::CreateWritableRegularFile()
     access = FileAccess::write | FileAccess::truncate;
 }
 
-#include <iostream>
 // TODO
 void File::HandleError(FileError e)
 {
-    switch (e)
+    if (e == FileError::none)
+        return;
+
+    if ((e & FileError::no_read_perm) != FileError::none)
     {
-        case FileError::no_read_perm:
-        {
-            // Handle
-            std::cout << "NO READ PERM\n";
-            break;
-        }
+        throw std::runtime_error("No read perm");
+    }
 
-        case FileError::no_write_perm:
-        {
-            // Handle
-            std::cout << "NO WRITE PERM\n";
-            break;
-        }
+    if ((e & FileError::no_write_perm) != FileError::none)
+    {
+        throw std::runtime_error("No write perm");
+    }
 
-        case FileError::not_found:
-        {
-            std::cout << "NOT FOUND\n";
-            break;
-        }
-
-        case FileError::none:
-        default:
-        break;
+    if ((e & FileError::not_found) != FileError::none)
+    {
+        throw std::runtime_error("Not found");
     }
 }
 
