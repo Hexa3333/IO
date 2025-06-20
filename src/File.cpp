@@ -224,6 +224,11 @@ bool File::CanWrite() const
     return GetWorkingUserCanWrite(info.path);
 }
 
+bool File::CanExecute() const
+{
+    return GetWorkingUserCanExecute(info.path);
+}
+
 // 1. Get whatever access is requested (in member 'access')
 // 2. Check for user and group perms
 // 3. Check if USER in those perms

@@ -38,6 +38,7 @@ public:
     bool CheckExists() const;
     bool CanRead() const;
     bool CanWrite() const;
+    bool CanExecute() const;
 
     static void HandleError(FileError e);
 
