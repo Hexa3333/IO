@@ -15,6 +15,7 @@
    [+] Access safety
    [+] Reset Access
 
+   [-] Binary tests
    [-] Operations (move, copy)
    [-] Operations on the file system
 */

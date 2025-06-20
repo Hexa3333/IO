@@ -59,6 +59,20 @@ static bool GetWorkingUserCanWrite(const std::filesystem::path& path)
         return st.st_mode & S_IWOTH;
 }
 
+static bool GetWorkingUserCanExecute(const std::filesystem::path& path)
+{
+    struct stat st;
+    std::string fpath = path.c_str();
+    stat(fpath.data(), &st);
+
+    if (GetWorkingUID() == st.st_uid)
+        return st.st_mode & S_IXUSR;
+    else if(GetWorkingGID() == st.st_gid)
+        return st.st_mode & S_IXGRP;
+    else
+        return st.st_mode & S_IXOTH;
+}
+
 #elif WINDOWS
 #endif
 
